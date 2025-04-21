@@ -1,6 +1,8 @@
 [package]
-name = "testapp"
+name = "framework-test"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+description = "Test application for the framework library"
 
 [dependencies]
+total5 = { path = "../" }  # Reference the framework library in the parent directory
