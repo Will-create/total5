@@ -3,9 +3,9 @@
 // Copyright 2012-2023 (c) Louis Bertson <louisbertsonpetersirka@gmail.com>
 
 use std::collections::HashMap;
-use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::time::Duration;
 use chrono::{DateTime, Utc};
+
 
 /// Framework value types that can be stored in various collections
 #[derive(Debug, Clone)]
@@ -182,8 +182,84 @@ pub struct ResponseStats {
     pub size: i64,
 }
 
+
+pub struct Config {
+    // Regular properties
+    pub name: String,
+    pub version: String,
+    pub author: String,
+    pub secret: String,
+    pub secret_encryption: String,
+    pub secret_totalapi: String,
+    pub secret_csrf: String,
+    pub secret_tapi: String,
+    pub secret_tms: String,
+
+    // Properties with $ prefix
+    pub _root: String,
+    pub _cors: String,
+    pub _api: String,
+    pub _sourcemap: bool,
+    pub _httpreqlimit: usize,
+    pub _httpcompress: bool,
+    pub _httpetag: String,
+    pub _httpmaxsize: usize,
+    pub _httprangebuffer: usize,
+    pub _httptimeout: u64,
+    pub _httpfiles: HashMap<String, bool>,
+    pub _httpchecktypes: bool,
+    pub _httpmaxage: u64,
+    pub _httpmaxkeys: usize,
+    pub _httpmaxkey: usize,
+    pub _blacklist: String,
+    pub _xpoweredby: String,
+    pub _maxopenfiles: usize,
+    pub _minifyjs: bool,
+    pub _minifycss: bool,
+    pub _minifyhtml: bool,
+    pub _localize: bool,
+    pub _port: String,
+    pub _ip: String,
+    pub _unixsocket: String,
+    pub _timezone: String,
+    pub _insecure: bool,
+    pub _performance: bool,
+    pub _filtererrors: bool,
+    pub _cleartemp: bool,
+    pub _customtitles: bool,
+    pub _version: String,
+    pub _clearcache: usize,
+    pub _imageconverter: String,
+    pub _imagememory: usize,
+    pub _stats: bool,
+    pub _npmcache: String,
+    pub _python: String,
+    pub _wsmaxsize: usize,
+    pub _wscompress: bool,
+    pub _wsencodedecode: bool,
+    pub _wsmaxlatency: usize,
+    pub _proxytimeout: u64,
+    pub _cookiesamesite: String,
+    pub _cookiesecure: bool,
+    pub _csrfexpiration: String,
+    pub _tapi: bool,
+    pub _tapiurl: String,
+    pub _tapimail: bool,
+    pub _tapilogger: bool,
+    pub _imprint: bool,
+    pub _tms: bool,
+    pub _tmsmaxsize: usize,
+    pub _tmsurl: String,
+    pub _tmsclearblocked: usize,
+    pub mail_from: Option<String>,
+    pub mail_from_name: Option<String>,
+    pub mail_reply: Option<String>,
+    pub mail_cc: Option<String>,
+    pub mail_bcc: Option<String>,
+    pub smtp: SMTPConfig,
+}
+
 /// Framework statistics
-#[derive(Debug, Clone, Default)]
 pub struct Stats {
     pub compilation: i64,
     pub error: i64,
@@ -203,7 +279,7 @@ pub struct ServiceStats {
 }
 
 /// Temporary storage
-#[derive(Debug, Clone, Default)]
+
 pub struct Temporary {
     pub path: HashMap<String, FrameworkValue>,
     pub actions: HashMap<String, FrameworkValue>,
@@ -239,8 +315,6 @@ pub struct Temporary {
     pub datetime: HashMap<String, FrameworkValue>,
 }
 
-/// Routes configuration
-#[derive(Debug, Clone, Default)]
 pub struct Routes {
     pub fallback: HashMap<String, FrameworkValue>,
     pub virtual_routes: HashMap<String, FrameworkValue>,
@@ -257,89 +331,204 @@ pub struct Routes {
     pub proxies: Vec<FrameworkValue>,
 }
 
-/// Main Framework structure
-#[derive(Debug, Clone)]
-pub struct Framework {
-    pub id: String,
-    pub clusterid: String,
-    pub is5: i64,
-    pub version: i64,
-    pub is_bundle: bool,
-    pub is_loaded: bool,
-    pub version_header: String,
-    pub version_node: String,
-    
-    // Collections
-    pub resources: HashMap<String, FrameworkValue>,
-    pub connections: HashMap<String, FrameworkValue>,
-    pub schedules: HashMap<String, FrameworkValue>,
-    pub modules: HashMap<String, FrameworkValue>,
-    pub plugins: HashMap<String, FrameworkValue>,
-    pub actions: HashMap<String, FrameworkValue>,
-    pub apiservices: HashMap<String, FrameworkValue>,
-    pub processing: HashMap<String, FrameworkValue>,
-    pub transformations: HashMap<String, FrameworkValue>,
-    pub consumption: HashMap<String, FrameworkValue>,
-    pub flowstreams: HashMap<String, FrameworkValue>,
-    pub filestorages: HashMap<String, FrameworkValue>,
-    pub jsonschemas: HashMap<String, FrameworkValue>,
-    pub querybuilders: HashMap<String, FrameworkValue>,
-    pub openclients: HashMap<String, FrameworkValue>,
-    pub nodemodules: HashMap<String, FrameworkValue>,
-    pub workers: HashMap<String, FrameworkValue>,
-    
-    // Arrays
-    pub timeouts: Vec<FrameworkValue>,
-    pub errors: Vec<FrameworkValue>,
-    pub paused: Vec<FrameworkValue>,
-    pub crons: Vec<FrameworkValue>,
-    
-    // Complex objects
-    pub internal: InternalStats,
-    pub routes: Routes,
-    pub temporary: Temporary,
-    pub stats: Stats,
+
+pub struct DEF {
+    pub helpers: HashMap<String, Box<dyn Fn() + Send + Sync>>,
+    pub currencies: HashMap<String, Currency>,
+    pub parsers: Parsers,
+    pub validators: Validators,
 }
 
-impl Default for Framework {
-    fn default() -> Self {
-        Self {
-            id: String::new(),
-            clusterid: String::new(),
-            is5: 5012,
-            version: 5012,
-            is_bundle: false,
-            is_loaded: false,
-            version_header: "5".to_string(),
-            version_node: std::env::var("NODE_VERSION").unwrap_or_else(|_| "unknown".to_string()),
-            
-            resources: HashMap::new(),
-            connections: HashMap::new(),
-            schedules: HashMap::new(),
-            modules: HashMap::new(),
-            plugins: HashMap::new(),
-            actions: HashMap::new(),
-            apiservices: HashMap::new(),
-            processing: HashMap::new(),
-            transformations: HashMap::new(),
-            consumption: HashMap::new(),
-            flowstreams: HashMap::new(),
-            filestorages: HashMap::new(),
-            jsonschemas: HashMap::new(),
-            querybuilders: HashMap::new(),
-            openclients: HashMap::new(),
-            nodemodules: HashMap::new(),
-            workers: HashMap::new(),
-            
-            timeouts: Vec::new(),
-            errors: Vec::new(),
-            paused: Vec::new(),
-            crons: Vec::new(),
-            
-            internal: InternalStats::default(),
-            routes: Routes::default(),
-            temporary: Temporary::default(),
-            stats: Stats::default(),
-        }
-    }
+pub struct Currency {
+    // Currency properties
+    pub code: String,
+    pub symbol: String,
+}
+
+pub struct Parsers {
+    pub json: Box<dyn Fn(&str) -> Result<serde_json::Value, serde_json::Error> + Send + Sync>,
+    pub urlencoded: Box<dyn Fn(&str) -> HashMap<String, String> + Send + Sync>,
+    pub xml: Box<dyn Fn(&str) -> Result<String, String> + Send + Sync>,
+}
+
+pub struct Validators {
+    pub email: regex::Regex,
+    pub url: regex::Regex,
+    pub phone: regex::Regex,
+    pub zip: regex::Regex,
+    pub uid: regex::Regex,
+    pub xss: regex::Regex,
+    pub sqlinjection: regex::Regex,
+}
+
+pub struct Controller {
+    pub ip: String,
+    pub headers: HashMap<String, String>,
+    pub query: HashMap<String, String>,
+}
+
+pub struct TMail {
+    // Email structure
+}
+
+pub struct Message {
+    pub subject: String,
+    pub body: String,
+    pub to_addresses: Vec<String>,
+    pub from_address: Option<String>,
+    pub from_name: Option<String>,
+    pub reply_to: Option<String>,
+    pub cc: Vec<String>,
+    pub bcc: Vec<String>,
+    pub _sending: Option<std::time::Instant>,
+}
+pub struct Path {
+    pub root: String,
+    pub logs: String,
+    pub scripts: String,
+    pub public: String,
+    pub private: String,
+    pub databases: String,
+    pub plugins: String,
+    pub templates: String,
+    pub flowstreams: String,
+    pub modules: String,
+    pub tmp: String,
+}
+pub struct TPath {
+    pub base_dir: String,
+    pub temporary_dirs: HashMap<String, String>,
+}
+
+
+pub struct CronJob {
+    // Cron job properties
+    pub id: String,
+    pub schedule: String,
+    pub handler: Box<dyn Fn() + Send + Sync>,
+}
+
+pub struct ErrorInfo {
+    pub error: String,
+    pub name: Option<String>,
+    pub url: Option<String>,
+    pub date: DateTime<Utc>,
+}
+
+
+pub struct SMTPConfig {
+    pub from: Option<String>,
+    pub name: Option<String>,
+    pub user: Option<String>,
+}
+
+pub struct Internal {
+    pub ticks: u64,
+    pub counter: u64,
+    pub uid: u64,
+    pub interval: Option<std::time::Duration>,
+}
+
+pub struct Route {
+    // Route properties
+    pub path: String,
+    pub handler: Box<dyn Fn() + Send + Sync>,
+}
+
+pub struct WebSocketRoute {
+    // WebSocket route properties
+    pub path: String,
+    pub handler: Box<dyn Fn() + Send + Sync>,
+}
+
+pub struct WebSocketConnection {
+    // WebSocket connection properties
+    pub id: String,
+    pub socket: Box<dyn std::any::Any + Send + Sync>,
+}
+
+pub struct FileRoute {
+    // File route properties
+    pub path: String,
+    pub handler: Box<dyn Fn() + Send + Sync>,
+}
+
+pub struct MiddlewareHandler {
+    // Middleware handler properties
+    pub handler: Box<dyn Fn() + Send + Sync>,
+}
+
+pub struct ImageMiddlewareHandler {
+    // Image middleware handler properties
+    pub handler: Box<dyn Fn() + Send + Sync>,
+}
+
+pub struct Proxy {
+    // Proxy properties
+    pub source: String,
+    pub target: String,
+}
+pub struct CryptoKey {
+    // Crypto key properties
+    pub key: String,
+}
+
+pub struct DDOSEntry {
+    // DDOS entry properties
+    pub count: u32,
+    pub expires: DateTime<Utc>,
+}
+
+pub struct Service {
+    pub redirect: u64,
+    pub request: u64,
+    pub file: u64,
+    pub usage: u64,
+}
+
+pub struct PendingItem {
+    // Pending item properties
+    pub id: String,
+    pub created: DateTime<Utc>,
+}
+
+pub struct Ban {
+    // Ban properties
+    pub ip: String,
+    pub expires: DateTime<Utc>,
+}
+
+pub struct DateTimeFormatter {
+    // DateTime formatter properties
+    pub format: String,
+}
+
+
+pub struct Performance {
+    pub publish: u64,
+    pub subscribe: u64,
+    pub calls: u64,
+    pub download: u64,
+    pub upload: u64,
+    pub request: u64,
+    pub message: u64,
+    pub file: u64,
+    pub open: u64,
+    pub online: u64,
+    pub usage: u64,
+    pub mail: u64,
+    pub dbrm: u64,
+    pub dbwm: u64,
+    pub external: u64,
+}
+
+
+pub struct SuccessResult<T> {
+    pub success: bool,
+    pub value: T,
+}
+
+pub struct AuditData {
+    pub dtcreated: DateTime<Utc>,
+    // Other audit data fields would go here
 }

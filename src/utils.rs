@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::fs;
 use tokio;
-
+#[derive(Debug, Clone)]
 pub struct TPath {
     base_dir: PathBuf,
     temporary_dirs: HashMap<String, PathBuf>,

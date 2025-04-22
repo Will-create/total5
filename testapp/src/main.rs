@@ -1,12 +1,7 @@
-use total5::{F, PATH};
-use std::path::PathBuf;
+use total5::*;
 
 fn main() {
-    // Initialize the framework
     println!("Framework version: {}", F.version);
-    
-  
-    // Use some path operations
     let logs_path = PATH.logs(Some("debug.log"));
     println!("Application log path: {:?}", logs_path);
     
@@ -27,6 +22,5 @@ fn main() {
     
     println!("Public assets directory: {:?}", public_assets);
     println!("Default template path: {:?}", template_file);
-    
     println!("Test application completed!");
 }
