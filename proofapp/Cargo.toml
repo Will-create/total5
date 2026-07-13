@@ -1,13 +1,13 @@
 [package]
-name = "framework-test"
+name = "total5-proofapp"
 version = "0.1.0"
 edition = "2021"
-description = "Test application for the framework library"
+description = "Reference application proving the Total.rs developer experience"
 
 [dependencies]
 serde_json = "1.0.140"
 tokio = { version = "1.38.0", features = ["full"] }
-total5 = { path = "../" }  # Reference the framework library in the parent directory
+total5 = { path = "../" }
 
 [build-dependencies]
 total5 = { path = "../", features = ["build"] }

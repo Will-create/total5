@@ -1,2 +1,19 @@
-/target
-/testapp/target
+# Rust build output (root crate and example applications)
+**/target/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*~
+
+# OS and editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
